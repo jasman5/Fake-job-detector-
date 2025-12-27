@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Fake Job Detector - Enhanced</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- icons (unchanged) ---
+        const Shield = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+        );
+        const AlertTriangle = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        );
+        const CheckCircle = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+        const Loader2 = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+        );
+        const Link = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+        );
+        const FileText = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+        );
+        const Sparkles = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+        );
+
+        // --- component ---
+        function EnhancedFakeJobDetector() {
+            const [inputMode, setInputMode] = useState('text'); // 'text' or 'url'
+            const [jobDescription, setJobDescription] = useState('');
+            const [jobUrl, setJobUrl] = useState('');
+            const [result, setResult] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState(null);
+            const [highlightedText, setHighlightedText] = useState('');
+
+            const API_URL = 'http://localhost:5000';
+
+            const sampleFakeJob = `URGENT! Work from home opportunity!
+Earn $5000-$10000 per month guaranteed! No experience needed!
+Payment required for training materials.
+Contact us at quickmoney@gmail.com
+ACT NOW - Limited positions available!`;
+
+            const sampleLegitJob = `Senior Software Engineer at ABC Tech Solutions
+We are seeking an experienced Full Stack Developer for our team in San Francisco.
+Requirements: 5+ years experience, Bachelor's degree in Computer Science
+Competitive salary $120,000-$160,000 with benefits including health insurance, 401k, and flexible work arrangements.
+Apply through our careers portal at www.abctech.com/careers`;
+
+            // ---------- Resilient analyzeText ----------
+            const analyzeText = async () => {
+                if (!jobDescription.trim()) {
+                    setError('Please enter a job description');
+                    return;
+                }
+
+                setLoading(true);
+                setError(null);
+                setResult(null);
+
+                // Try common payload shapes in order
+                const payloads = [
+                    { job_description: jobDescription },
+                    { description: jobDescription },
+                    { title: "", description: jobDescription },
+                    { text: jobDescription }
+                ];
+
+                try {
+                    let lastResponse = null;
+                    let tried = [];
+
+                    for (const pl of payloads) {
+                        tried.push(Object.keys(pl).join(','));
+                        try {
+                            lastResponse = await fetch(`${API_URL}/predict`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(pl)
+                            });
+                        } catch (netErr) {
+                            // network error — stop trying other payloads, show helpful message
+                            throw new Error(`Network error when contacting backend: ${netErr.message}`);
+                        }
+
+                        // If backend returned success, parse JSON and show results
+                        if (lastResponse && lastResponse.ok) {
+                            const data = await lastResponse.json();
+                            setResult(data);
+                            if (data.highlights && data.highlights.length > 0) {
+                                setHighlightedText(generateHighlightedHTML(jobDescription, data.highlights));
+                            } else {
+                                setHighlightedText(jobDescription);
+                            }
+                            setLoading(false);
+                            return;
+                        }
+
+                        // If server error (500+), capture body and raise immediately
+                        if (lastResponse && lastResponse.status >= 500) {
+                            let body = '';
+                            try { body = await lastResponse.text(); } catch (e) {}
+                            throw new Error(`Server error ${lastResponse.status}: ${body || lastResponse.statusText}`);
+                        }
+
+                        // otherwise continue to next payload
+                    }
+
+                    // none succeeded
+                    throw new Error(`Backend rejected payloads tried: ${tried.join(' | ')}. Last status: ${lastResponse ? lastResponse.status : 'no response'}`);
+                } catch (err) {
+                    setError(`Failed to analyze. ${err.message}`);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            // ---------- Resilient analyzeUrl ----------
+            const analyzeUrl = async () => {
+                if (!jobUrl.trim()) {
+                    setError('Please enter a job posting URL');
+                    return;
+                }
+
+                if (!jobUrl.startsWith('http://') && !jobUrl.startsWith('https://')) {
+                    setError('URL must start with http:// or https://');
+                    return;
+                }
+
+                setLoading(true);
+                setError(null);
+                setResult(null);
+
+                try {
+                    // Try the backend analyze-url endpoint if available
+                    let response;
+                    try {
+                        response = await fetch(`${API_URL}/analyze-url`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ url: jobUrl })
+                        });
+                    } catch (netErr) {
+                        throw new Error(`Network error contacting backend: ${netErr.message}`);
+                    }
+
+                    // If endpoint not found (404) tell user to use paste-text
+                    if (response.status === 404) {
+                        throw new Error('Backend does not provide URL analysis. Use Paste Text mode instead, or ask to enable URL scraping.');
+                    }
+
+                    if (!response.ok) {
+                        let body = '';
+                        try { body = await response.text(); } catch (e) {}
+                        throw new Error(`API error ${response.status}: ${body || response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    setResult(data);
+
+                    if (data.job_text) {
+                        setJobDescription(data.job_text);
+                        if (data.highlights && data.highlights.length > 0) {
+                            setHighlightedText(generateHighlightedHTML(data.job_text, data.highlights));
+                        } else {
+                            setHighlightedText(data.job_text);
+                        }
+                    }
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            // ---------- helper to render highlights ----------
+            const generateHighlightedHTML = (text, highlights) => {
+                if (!highlights || highlights.length === 0) return text;
+
+                let result = '';
+                let lastIndex = 0;
+                const sortedHighlights = [...highlights].sort((a,b)=>a.start - b.start);
+
+                sortedHighlights.forEach(h => {
+                    result += text.substring(lastIndex, h.start);
+                    const colorClass =
+                        h.severity === 'critical' ? 'bg-red-200 text-red-900 font-semibold' :
+                        h.severity === 'high' ? 'bg-orange-200 text-orange-900 font-medium' :
+                        'bg-yellow-200 text-yellow-900';
+                    // escape text content for safety
+                    const safeText = (h.text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                    result += `<span class="${colorClass} px-1 rounded" title="${h.label || ''}">${safeText}</span>`;
+                    lastIndex = h.end;
+                });
+
+                result += text.substring(lastIndex);
+                return result;
+            };
+
+            const loadSample = (type) => {
+                setJobDescription(type === 'fake' ? sampleFakeJob : sampleLegitJob);
+                setInputMode('text');
+                setResult(null);
+                setError(null);
+                setHighlightedText('');
+            };
+
+            const reset = () => {
+                setJobDescription('');
+                setJobUrl('');
+                setResult(null);
+                setError(null);
+                setHighlightedText('');
+            };
+
+            // ---------- UI (unchanged layout) ----------
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+                    <div className="max-w-7xl mx-auto p-6">
+                        <div className="text-center mb-8">
+                            <div className="flex items-center justify-center gap-3 mb-4">
+                                <Shield className="w-12 h-12 text-blue-600" />
+                                <h1 className="text-4xl font-bold text-gray-800">Fake Job Detector</h1>
+                                <Sparkles className="w-8 h-8 text-purple-500" />
+                            </div>
+                            <p className="text-gray-600 text-lg">AI-powered tool with URL scraping and visual highlighting</p>
+                        </div>
+
+                        <div className="grid lg:grid-cols-2 gap-6">
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-4">Analyze Job Posting</h2>
+
+                                <div className="flex gap-2 mb-4">
+                                    <button
+                                        onClick={() => setInputMode('text')}
+                                        className={`flex-1 py-2 px-4 rounded-lg font-medium transition flex items-center justify-center gap-2 ${inputMode === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                    >
+                                        <FileText className="w-5 h-5" /> Paste Text
+                                    </button>
+                                    <button
+                                        onClick={() => setInputMode('url')}
+                                        className={`flex-1 py-2 px-4 rounded-lg font-medium transition flex items-center justify-center gap-2 ${inputMode === 'url' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                    >
+                                        <Link className="w-5 h-5" /> Enter URL
+                                    </button>
+                                </div>
+
+                                {inputMode === 'text' && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Paste job description:</label>
+                                        <textarea
+                                            value={jobDescription}
+                                            onChange={(e) => setJobDescription(e.target.value)}
+                                            placeholder="Paste the complete job posting here..."
+                                            className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                        />
+                                        <div className="text-sm text-gray-500 mt-2">{jobDescription.length} characters</div>
+                                    </div>
+                                )}
+
+                                {inputMode === 'url' && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Enter job posting URL:</label>
+                                        <input
+                                            type="url"
+                                            value={jobUrl}
+                                            onChange={(e) => setJobUrl(e.target.value)}
+                                            placeholder="https://www.indeed.com/viewjob?jk=..."
+                                            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                        <div className="mt-3 p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+                                            Paste a URL of job posting from the job site, and we'll automatically extract and analyze it (if backend supports it).
+                                        </div>
+                                    </div>
+                                )}
+
+                                {inputMode === 'text' && (
+                                    <div className="flex gap-2 mb-4">
+                                        <button onClick={() => loadSample('fake')} className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition text-sm font-medium">Load Fake Sample</button>
+                                        <button onClick={() => loadSample('legit')} className="flex-1 px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition text-sm font-medium">Load Legit Sample</button>
+                                    </div>
+                                )}
+
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={inputMode === 'text' ? analyzeText : analyzeUrl}
+                                        disabled={loading || (inputMode === 'text' ? !jobDescription.trim() : !jobUrl.trim())}
+                                        className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition font-semibold flex items-center justify-center gap-2"
+                                    >
+                                        {loading ? (<><Loader2 className="w-5 h-5 animate-spin" /> Analyzing...</>) : (<><Shield className="w-5 h-5" /> Analyze</>)}
+                                    </button>
+                                    <button onClick={reset} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold">Clear</button>
+                                </div>
+
+                                {error && (
+                                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                                        <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                        <div className="text-sm text-red-700">{error}</div>
+                                    </div>
+                                )}
+
+                                {result && highlightedText && result.highlights && result.highlights.length > 0 && (
+                                    <div className="mt-4">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                            <Sparkles className="w-4 h-4" /> Visual Highlights (Suspicious Patterns)
+                                        </h3>
+                                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 max-h-64 overflow-y-auto">
+                                            <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: highlightedText }} />
+                                        </div>
+                                        <div className="mt-2 flex gap-4 text-xs">
+                                            <div className="flex items-center gap-1"><span className="w-4 h-4 bg-red-200 rounded"></span><span>Critical</span></div>
+                                            <div className="flex items-center gap-1"><span className="w-4 h-4 bg-orange-200 rounded"></span><span>High Risk</span></div>
+                                            <div className="flex items-center gap-1"><span className="w-4 h-4 bg-yellow-200 rounded"></span><span>Warning</span></div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <h2 className="text-xl font-semibold text-gray-800 mb-4">Analysis Results</h2>
+
+                                {!result && !loading && (
+                                    <div className="flex flex-col items-center justify-center h-96 text-gray-400">
+                                        <Shield className="w-16 h-16 mb-4" />
+                                        <p className="text-center">Enter job details and click "Analyze" to get started</p>
+                                    </div>
+                                )}
+
+                                {loading && (
+                                    <div className="flex flex-col items-center justify-center h-96">
+                                        <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+                                        <p className="text-gray-600">{inputMode === 'url' ? 'Scraping and analyzing...' : 'Analyzing job posting...'}</p>
+                                    </div>
+                                )}
+
+                                {result && (
+                                    <div className="space-y-6 max-h-[calc(100vh-250px)] overflow-y-auto pr-2">
+                                        {result.scraped_data && (
+                                            <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                                <h3 className="font-semibold text-purple-900 mb-2 flex items-center gap-2"><Link className="w-5 h-5" /> Scraped from URL</h3>
+                                                <div className="text-sm text-purple-800 space-y-1">
+                                                    {result.scraped_data.title !== 'Not found' && (<div><strong>Title:</strong> {result.scraped_data.title}</div>)}
+                                                    {result.scraped_data.company !== 'Not found' && (<div><strong>Company:</strong> {result.scraped_data.company}</div>)}
+                                                    {result.scraped_data.location !== 'Not found' && (<div><strong>Location:</strong> {result.scraped_data.location}</div>)}
+                                                    <div className="break-all"><strong>URL:</strong> <a href={result.scraped_data.url} target="_blank" rel="noopener noreferrer" className="underline">{result.scraped_data.url}</a></div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className={`p-6 rounded-xl border-2 ${result.is_fake ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-300'}`}>
+                                            <div className="flex items-center gap-3 mb-3">
+                                                {result.is_fake ? (<AlertTriangle className="w-8 h-8 text-red-600" />) : (<CheckCircle className="w-8 h-8 text-green-600" />)}
+                                                <div>
+                                                    <h3 className={`text-2xl font-bold ${result.is_fake ? 'text-red-800' : 'text-green-800'}`}>{result.is_fake ? '⚠️ LIKELY FAKE' : '✓ LIKELY LEGITIMATE'}</h3>
+                                                    <p className={`text-sm ${result.is_fake ? 'text-red-700' : 'text-green-700'}`}>This job posting appears to be {result.prediction}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-gray-50 p-4 rounded-lg">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-sm font-medium text-gray-700">Confidence Score</span>
+                                                <span className="text-lg font-bold text-gray-900">{(result.confidence * 100).toFixed(1)}%</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 rounded-full h-3">
+                                                <div className={`h-3 rounded-full transition-all ${ result.is_fake ? 'bg-red-500' : 'bg-green-500' }`} style={{ width: `${result.confidence * 100}%` }} />
+                                            </div>
+                                        </div>
+
+                                        {result.red_flags && result.red_flags.length > 0 && (
+                                            <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                                                <h4 className="font-semibold text-red-800 mb-3 flex items-center gap-2"><AlertTriangle className="w-5 h-5" /> Red Flags Detected ({result.red_flags.length})</h4>
+                                                <ul className="space-y-2">{result.red_flags.map((flag, idx) => (<li key={idx} className="text-sm text-red-700 flex items-start gap-2"><span className="text-red-500 font-bold">•</span><span>{flag}</span></li>))}</ul>
+                                            </div>
+                                        )}
+
+                                        {result.positive_indicators && result.positive_indicators.length > 0 && (
+                                            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                                                <h4 className="font-semibold text-green-800 mb-3 flex items-center gap-2"><CheckCircle className="w-5 h-5" /> Positive Indicators ({result.positive_indicators.length})</h4>
+                                                <ul className="space-y-2">{result.positive_indicators.map((indicator, idx) => (<li key={idx} className="text-sm text-green-700 flex items-start gap-2"><span className="text-green-500 font-bold">✓</span><span>{indicator}</span></li>))}</ul>
+                                            </div>
+                                        )}
+
+                                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                            <h4 className="font-semibold text-blue-800 mb-2">Recommendations</h4>
+                                            <ul className="space-y-1 text-sm text-blue-700">
+                                                <li>• Research the company thoroughly</li>
+                                                <li>• Verify contact information independently</li>
+                                                <li>• Never pay upfront fees for job opportunities</li>
+                                                <li>• Be cautious of unusually high salaries</li>
+                                                <li>• Check reviews on legitimate job sites</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
+                            <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                                <div className="flex gap-3">
+                                    <Link className="w-8 h-8 text-blue-500 flex-shrink-0" />
+                                    <div>
+                                        <strong className="text-gray-800">URL Scraping</strong>
+                                        <p>Paste any job posting URL and we'll automatically extract and analyze the content. No more copy-pasting! (Requires backend support)</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-3">
+                                    <Sparkles className="w-8 h-8 text-purple-500 flex-shrink-0" />
+                                    <div>
+                                        <strong className="text-gray-800">Visual Highlights</strong>
+                                        <p>See suspicious patterns highlighted in color based on severity. Understand exactly why something is flagged.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<EnhancedFakeJobDetector />, document.getElementById('root'));
+    </script>
+</body>
+</html>
