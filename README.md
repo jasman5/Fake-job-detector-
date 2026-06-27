@@ -264,6 +264,4 @@ This tool is intended to assist users in identifying potentially fraudulent job 
 
 ---
 
-## 📄 License
-
-MIT License — free to use for educational and personal projects.
+open by start index.html
