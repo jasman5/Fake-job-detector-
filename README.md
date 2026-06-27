@@ -1,6 +1,5 @@
 # Fake Job Detector 
-
-Fake Job Detector is a machine learning–based application designed to identify fraudulent job postings using Natural Language Processing (NLP) techniques.
+The Fake Job Posting Detection System is a machine learning–based application designed to automatically identify fraudulent job listings using Natural Language Processing (NLP). With the rise of online recruitment scams, this project aims to protect job seekers by analyzing job descriptions and flagging suspicious postings in real time.
 
 ## Project Overview
 With the increasing number of fake job listings online, this project aims to help users distinguish between **real** and **fraudulent** job postings by analyzing textual data and patterns.
