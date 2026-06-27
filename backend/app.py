@@ -1,4 +1,3 @@
-# enhanced_app.py
 # Flask API for Enhanced Fake Job Detection
 
 from flask import Flask, request, jsonify
