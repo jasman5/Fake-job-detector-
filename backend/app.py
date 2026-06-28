@@ -8,27 +8,33 @@ import string
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-# Load the best trained model
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+BEST_MODEL = os.path.join(BASE_DIR, "best_fake_job_model.pkl")
+BALANCED_MODEL = os.path.join(BASE_DIR, "fake_job_model_balanced.pkl")
+
 try:
-    with open("best_fake_job_model.pkl", "rb") as f:
+    with open(BEST_MODEL, "rb") as f:
         model_data = pickle.load(f)
         model = model_data["model"]
         vectorizer = model_data["vectorizer"]
         model_name = model_data["model_name"]
     print(f"✓ Best model loaded successfully: {model_name}")
+
 except:
-    # Fallback to balanced model
     try:
-        with open("fake_job_model_balanced.pkl", "rb") as f:
+        with open(BALANCED_MODEL, "rb") as f:
             model_data = pickle.load(f)
             model = model_data["model"]
             vectorizer = model_data["vectorizer"]
             model_name = "Random Forest (Balanced)"
         print(f"✓ Fallback model loaded: {model_name}")
+
     except Exception as e:
         print(f"Error loading model: {e}")
         model = None

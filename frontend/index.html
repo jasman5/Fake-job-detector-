@@ -15,7 +15,6 @@
     <script type="text/babel">
         const { useState } = React;
 
-        // --- icons (unchanged) ---
         const Shield = ({ className }) => (
             <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -58,54 +57,238 @@
                       d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
         );
+        const ChevronDown = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+        );
 
-        // --- component ---
+        // ---- ALL SAMPLE JOB DESCRIPTIONS ----
+
+        const fakeSamples = [
+            {
+                label: "Fake #1 – Urgent WFH Scam",
+                text: `URGENT! Work from home opportunity!
+Earn $5000-$10000 per month guaranteed! No experience needed!
+Payment required for training materials.
+Contact us at quickmoney@gmail.com
+ACT NOW - Limited positions available!`
+            },
+            {
+                label: "Fake #2 – ML Internship Phishing",
+                text: `We are pleased to inform you that you have been shortlisted for the Machine Learning Internship Program at AxonCore Technologies.
+
+Your profile has been reviewed successfully.
+
+Internship Details:
+• Position: Machine Learning Intern
+• Duration: 2 Months
+• Location: Remote
+• Stipend: ₹18,500/month
+
+Final Step:
+Complete your enrollment at:
+https://www.axonbloom.com/internship
+
+Please note that a one-time internship registration fee is required before onboarding. Your login credentials will be shared after successful payment.
+
+Seats are limited. Register today to confirm your internship.`
+            },
+            {
+                label: "Fake #3 – WhatsApp HR Scam",
+                text: `URGENT HIRING!
+
+Work from Home Opportunity.
+
+Earn ₹75,000–₹1,50,000 per month with no experience required.
+
+Benefits:
+• No interview
+• No qualification required
+• Weekly payments
+• Immediate joining
+
+To activate your employee ID, pay a refundable processing fee of ₹999.
+
+WhatsApp HR at +91-9876543210 to secure your position immediately.
+
+Limited vacancies available.`
+            },
+            {
+                label: "Fake #4 – Canada Job Visa Scam",
+                text: `Congratulations!
+
+You have been selected for a Software Engineer position in Canada.
+
+Salary: CAD $8,500/month
+Accommodation and flight tickets provided.
+
+No interview required.
+
+To begin visa processing, submit a security deposit of ₹12,500 within 24 hours.
+
+Failure to pay the deposit will result in cancellation of your offer.
+
+Contact our recruitment team immediately to complete the process.`
+            },
+            {
+                label: "Fake #5 – Data Entry Reshipping Scam",
+                text: `HIRING NOW: Data Entry & Package Handler – Work From Home
+
+We are a US-based logistics company looking for remote package handlers and data entry operators.
+
+Pay: $25–$45 per hour, paid weekly via Zelle or Cash App.
+No experience needed. Training provided online.
+
+Your job: Receive packages at your home address, repackage them, and ship to our clients.
+
+To get started, create your account at: workforce-global-jobs.net and pay a one-time system access fee of $49.
+
+Hiring is 100% guaranteed. No resume required.
+
+Apply now — only 12 spots left!`
+            },
+            {
+                label: "Fake #6 – Social Media Manager Fake Agency",
+                text: `We are a digital marketing agency looking for Social Media Managers worldwide!
+
+Salary: $3,000/month, fully remote.
+No degree required. Work just 2–3 hours a day.
+
+Selected candidates will be asked to purchase our proprietary Social Media Toolkit ($150) to access clients and posting tools.
+
+Apply via WhatsApp: +1-555-678-9012
+No interviews. Positions fill fast.
+Email: hr.globalmediaworks@gmail.com`
+            }
+        ];
+
+        const legitSamples = [
+            {
+                label: "Legit #1 – Senior Software Engineer",
+                text: `Senior Software Engineer at ABC Tech Solutions
+We are seeking an experienced Full Stack Developer for our team in San Francisco.
+Requirements: 5+ years experience, Bachelor's degree in Computer Science
+Competitive salary $120,000-$160,000 with benefits including health insurance, 401k, and flexible work arrangements.
+Apply through our careers portal at www.abctech.com/careers`
+            },
+            {
+                label: "Legit #2 – Data Analyst (Infosys)",
+                text: `Job Title: Data Analyst
+Company: Infosys Limited
+Location: Pune, Maharashtra (Hybrid – 3 days onsite)
+Experience Required: 2–4 years
+
+About the Role:
+We are looking for a detail-oriented Data Analyst to join our Analytics & Insights team. You will work with cross-functional teams to analyse large datasets, build dashboards, and deliver actionable business insights.
+
+Responsibilities:
+• Analyse structured and unstructured data from multiple sources
+• Build and maintain reports using Power BI and Tableau
+• Collaborate with business stakeholders to understand reporting needs
+• Ensure data quality and integrity across pipelines
+
+Requirements:
+• Bachelor's degree in Statistics, Computer Science, or related field
+• Proficiency in SQL, Python, and Excel
+• Hands-on experience with BI tools (Power BI / Tableau)
+• Strong communication and problem-solving skills
+
+Compensation: ₹8–12 LPA based on experience
+Benefits: Health insurance, PF, performance bonus, learning & development budget
+
+Apply at: careers.infosys.com | Job ID: INF-DA-2025-447`
+            },
+            {
+                label: "Legit #3 – Product Manager (Startup)",
+                text: `Product Manager – Growth
+Company: Razorpay
+Location: Bengaluru, Karnataka (Hybrid)
+Employment Type: Full-time
+
+About Razorpay:
+Razorpay is India's leading payment solutions company, serving over 8 million businesses. We're building financial infrastructure for the internet economy.
+
+Role Overview:
+We are hiring a Product Manager to own our merchant growth product vertical. You will define product strategy, work closely with engineering and design, and drive measurable outcomes.
+
+What You'll Do:
+• Define and own the product roadmap for merchant onboarding and activation
+• Conduct user research and translate insights into features
+• Work with data teams to set KPIs and track product health
+• Coordinate cross-functional releases with engineering leads
+
+What We're Looking For:
+• 3–6 years of product management experience, preferably in fintech or SaaS
+• Strong analytical mindset with comfort using SQL and product analytics tools
+• Excellent written and verbal communication
+• Prior experience working in agile environments
+
+Compensation: ₹25–40 LPA (depending on experience)
+Perks: ESOPs, health & wellness benefits, flexible leaves, remote-friendly culture
+
+To Apply: Visit https://razorpay.com/jobs or email your resume to hiring@razorpay.com`
+            },
+            {
+                label: "Legit #4 – Frontend Developer (MNC)",
+                text: `Frontend Developer – React.js
+Company: Capgemini India
+Location: Hyderabad (Onsite)
+Experience: 3–5 years
+
+Job Description:
+Capgemini is looking for a skilled Frontend Developer to join our digital engineering team working on client projects across retail and financial services domains.
+
+Key Responsibilities:
+• Develop responsive, accessible user interfaces using React.js and TypeScript
+• Collaborate with UX designers to implement pixel-perfect designs
+• Integrate REST and GraphQL APIs
+• Write unit and integration tests using Jest and Cypress
+• Participate in code reviews and contribute to tech documentation
+
+Required Skills:
+• Strong proficiency in React.js, JavaScript (ES6+), HTML5, CSS3
+• Experience with state management (Redux / Zustand)
+• Familiarity with CI/CD pipelines and Git workflows
+• Good understanding of web performance and accessibility standards
+
+Nice to Have:
+• Experience with Next.js or Vite
+• Exposure to cloud platforms (AWS / Azure)
+
+Salary: ₹12–18 LPA
+Benefits: PF, gratuity, group medical insurance, paid leaves, annual appraisal
+
+Apply Here: capgemini.com/in-en/careers
+Job Reference: CAP-FE-HYD-2025`
+            }
+        ];
+
         function EnhancedFakeJobDetector() {
-            const [inputMode, setInputMode] = useState('text'); // 'text' or 'url'
+            const [inputMode, setInputMode] = useState('text');
             const [jobDescription, setJobDescription] = useState('');
             const [jobUrl, setJobUrl] = useState('');
             const [result, setResult] = useState(null);
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState(null);
             const [highlightedText, setHighlightedText] = useState('');
+            const [fakeDropdownOpen, setFakeDropdownOpen] = useState(false);
+            const [legitDropdownOpen, setLegitDropdownOpen] = useState(false);
 
             const API_URL = 'http://localhost:5000';
 
-            const sampleFakeJob = `URGENT! Work from home opportunity!
-Earn $5000-$10000 per month guaranteed! No experience needed!
-Payment required for training materials.
-Contact us at quickmoney@gmail.com
-ACT NOW - Limited positions available!`;
-
-            const sampleLegitJob = `Senior Software Engineer at ABC Tech Solutions
-We are seeking an experienced Full Stack Developer for our team in San Francisco.
-Requirements: 5+ years experience, Bachelor's degree in Computer Science
-Competitive salary $120,000-$160,000 with benefits including health insurance, 401k, and flexible work arrangements.
-Apply through our careers portal at www.abctech.com/careers`;
-
-            // ---------- Resilient analyzeText ----------
             const analyzeText = async () => {
-                if (!jobDescription.trim()) {
-                    setError('Please enter a job description');
-                    return;
-                }
-
-                setLoading(true);
-                setError(null);
-                setResult(null);
-
-                // Try common payload shapes in order
+                if (!jobDescription.trim()) { setError('Please enter a job description'); return; }
+                setLoading(true); setError(null); setResult(null);
                 const payloads = [
                     { job_description: jobDescription },
                     { description: jobDescription },
                     { title: "", description: jobDescription },
                     { text: jobDescription }
                 ];
-
                 try {
                     let lastResponse = null;
                     let tried = [];
-
                     for (const pl of payloads) {
                         tried.push(Object.keys(pl).join(','));
                         try {
@@ -115,11 +298,8 @@ Apply through our careers portal at www.abctech.com/careers`;
                                 body: JSON.stringify(pl)
                             });
                         } catch (netErr) {
-                            // network error — stop trying other payloads, show helpful message
                             throw new Error(`Network error when contacting backend: ${netErr.message}`);
                         }
-
-                        // If backend returned success, parse JSON and show results
                         if (lastResponse && lastResponse.ok) {
                             const data = await lastResponse.json();
                             setResult(data);
@@ -131,18 +311,12 @@ Apply through our careers portal at www.abctech.com/careers`;
                             setLoading(false);
                             return;
                         }
-
-                        // If server error (500+), capture body and raise immediately
                         if (lastResponse && lastResponse.status >= 500) {
                             let body = '';
                             try { body = await lastResponse.text(); } catch (e) {}
                             throw new Error(`Server error ${lastResponse.status}: ${body || lastResponse.statusText}`);
                         }
-
-                        // otherwise continue to next payload
                     }
-
-                    // none succeeded
                     throw new Error(`Backend rejected payloads tried: ${tried.join(' | ')}. Last status: ${lastResponse ? lastResponse.status : 'no response'}`);
                 } catch (err) {
                     setError(`Failed to analyze. ${err.message}`);
@@ -151,24 +325,11 @@ Apply through our careers portal at www.abctech.com/careers`;
                 }
             };
 
-            // ---------- Resilient analyzeUrl ----------
             const analyzeUrl = async () => {
-                if (!jobUrl.trim()) {
-                    setError('Please enter a job posting URL');
-                    return;
-                }
-
-                if (!jobUrl.startsWith('http://') && !jobUrl.startsWith('https://')) {
-                    setError('URL must start with http:// or https://');
-                    return;
-                }
-
-                setLoading(true);
-                setError(null);
-                setResult(null);
-
+                if (!jobUrl.trim()) { setError('Please enter a job posting URL'); return; }
+                if (!jobUrl.startsWith('http://') && !jobUrl.startsWith('https://')) { setError('URL must start with http:// or https://'); return; }
+                setLoading(true); setError(null); setResult(null);
                 try {
-                    // Try the backend analyze-url endpoint if available
                     let response;
                     try {
                         response = await fetch(`${API_URL}/analyze-url`, {
@@ -179,21 +340,14 @@ Apply through our careers portal at www.abctech.com/careers`;
                     } catch (netErr) {
                         throw new Error(`Network error contacting backend: ${netErr.message}`);
                     }
-
-                    // If endpoint not found (404) tell user to use paste-text
-                    if (response.status === 404) {
-                        throw new Error('Backend does not provide URL analysis. Use Paste Text mode instead, or ask to enable URL scraping.');
-                    }
-
+                    if (response.status === 404) throw new Error('Backend does not provide URL analysis. Use Paste Text mode instead.');
                     if (!response.ok) {
                         let body = '';
                         try { body = await response.text(); } catch (e) {}
                         throw new Error(`API error ${response.status}: ${body || response.statusText}`);
                     }
-
                     const data = await response.json();
                     setResult(data);
-
                     if (data.job_text) {
                         setJobDescription(data.job_text);
                         if (data.highlights && data.highlights.length > 0) {
@@ -209,36 +363,33 @@ Apply through our careers portal at www.abctech.com/careers`;
                 }
             };
 
-            // ---------- helper to render highlights ----------
             const generateHighlightedHTML = (text, highlights) => {
                 if (!highlights || highlights.length === 0) return text;
-
                 let result = '';
                 let lastIndex = 0;
                 const sortedHighlights = [...highlights].sort((a,b)=>a.start - b.start);
-
                 sortedHighlights.forEach(h => {
                     result += text.substring(lastIndex, h.start);
                     const colorClass =
                         h.severity === 'critical' ? 'bg-red-200 text-red-900 font-semibold' :
                         h.severity === 'high' ? 'bg-orange-200 text-orange-900 font-medium' :
                         'bg-yellow-200 text-yellow-900';
-                    // escape text content for safety
                     const safeText = (h.text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
                     result += `<span class="${colorClass} px-1 rounded" title="${h.label || ''}">${safeText}</span>`;
                     lastIndex = h.end;
                 });
-
                 result += text.substring(lastIndex);
                 return result;
             };
 
-            const loadSample = (type) => {
-                setJobDescription(type === 'fake' ? sampleFakeJob : sampleLegitJob);
+            const loadSample = (text) => {
+                setJobDescription(text);
                 setInputMode('text');
                 setResult(null);
                 setError(null);
                 setHighlightedText('');
+                setFakeDropdownOpen(false);
+                setLegitDropdownOpen(false);
             };
 
             const reset = () => {
@@ -249,7 +400,6 @@ Apply through our careers portal at www.abctech.com/careers`;
                 setHighlightedText('');
             };
 
-            // ---------- UI (unchanged layout) ----------
             return (
                 <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
                     <div className="max-w-7xl mx-auto p-6">
@@ -312,8 +462,53 @@ Apply through our careers portal at www.abctech.com/careers`;
 
                                 {inputMode === 'text' && (
                                     <div className="flex gap-2 mb-4">
-                                        <button onClick={() => loadSample('fake')} className="flex-1 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition text-sm font-medium">Load Fake Sample</button>
-                                        <button onClick={() => loadSample('legit')} className="flex-1 px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition text-sm font-medium">Load Legit Sample</button>
+                                        {/* Fake Samples Dropdown */}
+                                        <div className="flex-1 relative">
+                                            <button
+                                                onClick={() => { setFakeDropdownOpen(!fakeDropdownOpen); setLegitDropdownOpen(false); }}
+                                                className="w-full px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition text-sm font-medium flex items-center justify-between"
+                                            >
+                                                <span>🚨 Load Fake Sample</span>
+                                                <ChevronDown className={`w-4 h-4 transition-transform ${fakeDropdownOpen ? 'rotate-180' : ''}`} />
+                                            </button>
+                                            {fakeDropdownOpen && (
+                                                <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-red-200 rounded-lg shadow-lg overflow-hidden">
+                                                    {fakeSamples.map((s, i) => (
+                                                        <button
+                                                            key={i}
+                                                            onClick={() => loadSample(s.text)}
+                                                            className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 border-b border-red-100 last:border-0"
+                                                        >
+                                                            {s.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Legit Samples Dropdown */}
+                                        <div className="flex-1 relative">
+                                            <button
+                                                onClick={() => { setLegitDropdownOpen(!legitDropdownOpen); setFakeDropdownOpen(false); }}
+                                                className="w-full px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition text-sm font-medium flex items-center justify-between"
+                                            >
+                                                <span>✅ Load Legit Sample</span>
+                                                <ChevronDown className={`w-4 h-4 transition-transform ${legitDropdownOpen ? 'rotate-180' : ''}`} />
+                                            </button>
+                                            {legitDropdownOpen && (
+                                                <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-green-200 rounded-lg shadow-lg overflow-hidden">
+                                                    {legitSamples.map((s, i) => (
+                                                        <button
+                                                            key={i}
+                                                            onClick={() => loadSample(s.text)}
+                                                            className="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50 border-b border-green-100 last:border-0"
+                                                        >
+                                                            {s.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
 
@@ -344,9 +539,9 @@ Apply through our careers portal at www.abctech.com/careers`;
                                             <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: highlightedText }} />
                                         </div>
                                         <div className="mt-2 flex gap-4 text-xs">
-                                            <div className="flex items-center gap-1"><span className="w-4 h-4 bg-red-200 rounded"></span><span>Critical</span></div>
-                                            <div className="flex items-center gap-1"><span className="w-4 h-4 bg-orange-200 rounded"></span><span>High Risk</span></div>
-                                            <div className="flex items-center gap-1"><span className="w-4 h-4 bg-yellow-200 rounded"></span><span>Warning</span></div>
+                                            <div className="flex items-center gap-1"><span className="w-4 h-4 bg-red-200 rounded inline-block"></span><span>Critical</span></div>
+                                            <div className="flex items-center gap-1"><span className="w-4 h-4 bg-orange-200 rounded inline-block"></span><span>High Risk</span></div>
+                                            <div className="flex items-center gap-1"><span className="w-4 h-4 bg-yellow-200 rounded inline-block"></span><span>Warning</span></div>
                                         </div>
                                     </div>
                                 )}
