@@ -10,6 +10,9 @@
 
 With the rise of online recruitment scams, this system automatically identifies fraudulent job postings by analyzing job descriptions using NLP techniques and machine learning models. It flags suspicious postings in real time and provides confidence scores and detailed explanations.
 
+<img width="1686" height="857" alt="image" src="https://github.com/user-attachments/assets/f6df734f-14c3-40cd-a9a5-9196e8343cc6" />
+<img width="1752" height="871" alt="image" src="https://github.com/user-attachments/assets/d3a4159f-c837-4d1d-96b2-1baaeb93bd80" />
+
 ---
 
 ## ✨ Features
